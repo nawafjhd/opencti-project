@@ -1,21 +1,175 @@
-# OpenCTI Docker deployment
+# OpenCTI Project
 
-## Documentation
+---
 
-You can find the detailed documentation about the Docker installation in the [OpenCTI documentation space](https://docs.opencti.io/latest/deployment/installation/#using-docker).
+## مقدمة وفهم المشروع
 
-## Community
+OpenCTI (Open Cyber Threat Intelligence) هو نظام مفتوح المصدر لإدارة وتبادل معلومات التهديدات السيبرانية.  
+يهدف المشروع إلى توحيد البيانات من مصادر متعددة، مع توفير أدوات لتحليلها ومشاركتها بطريقة منظمة وآمنة.
 
-### Status & bugs
+---
 
-Currently OpenCTI is under heavy development, if you wish to report bugs or ask for new features, you can directly use the [Github issues module](https://github.com/OpenCTI-Platform/opencti/issues).
+## هيكلة المجلدات والملفات
+├── nawafOpenCTI
+│ └── opencti
+│ ├── docker-compose.dev.yml
+│ ├── docker-compose.opensearch.yml
+│ ├── docker-compose.yml
+│ ├── rabbitmq.conf
+│ ├── README.md
+│ └── renovate.json
 
-### Discussion
 
-If you need support or you wish to engage a discussion about the OpenCTI platform, feel free to join us on our [Slack channel](https://community.filigran.io). You can also send us an email to contact@opencti.io.
 
-## About
+### شرح الهيكلة:
 
-OpenCTI is a product designed and developed by the company [Filigran](https://filigran.io).
+- **nawafOpenCTI/opencti/**  
+  مجلد المشروع الرئيسي يحتوي على ملفات التهيئة والوثائق الخاصة بـ OpenCTI.
 
-<a href="https://filigran.io" alt="Filigran"><img src="https://github.com/OpenCTI-Platform/opencti/raw/master/.github/img/logo_filigran.png" width="300" /></a>
+---
+
+## شرح الملفات الرئيسية في المجلد
+
+### 1. `docker-compose.yml`  
+ملف تكوين الخدمات الأساسية لتشغيل OpenCTI باستخدام Docker. يحتوي على إعدادات الحاويات:  
+- OpenCTI platform  
+- قاعدة بيانات PostgreSQL  
+- RabbitMQ (نظام الرسائل)  
+- Elasticsearch أو OpenSearch (محرك البحث)
+
+---
+
+### 2. `docker-compose.dev.yml`  
+نسخة مخصصة لبيئة التطوير، تضيف أدوات مثل إعادة التحميل التلقائي للمطورين لتسهيل العمل.
+
+---
+
+### 3. `docker-compose.opensearch.yml`  
+تكوين بديل يستخدم OpenSearch بدلاً من Elasticsearch كمحرك بحث وتحليل.
+
+---
+
+### 4. `rabbitmq.conf`  
+ملف إعدادات خاص بـ RabbitMQ، يتحكم في الرسائل بين الخدمات المختلفة، مثل الكونيكتورز و OpenCTI.
+
+---
+
+### 5. `README.md`  
+ملف التوثيق الرئيسي للمشروع يحتوي شرحًا كاملاً عن المشروع، خطوات التثبيت والاستخدام.
+
+---
+
+### 6. `renovate.json`  
+إعدادات أداة Renovate لتحديث التبعيات البرمجية تلقائيًا.
+
+---
+
+## الكونيكتورز (Connectors) المستخدمة وفوائدها
+
+1. **AlienVault OTX (Open Threat Exchange)**  
+   - **النوع:** External Import  
+   - **الفائدة:** يجلب حزم التهديدات (Pulses) وعناوين IP خبيثة، بصمات ملفات، عائلات البرمجيات الخبيثة من منصة AlienVault.  
+   - **المصدر:** [otx.alienvault.com](https://otx.alienvault.com)  
+   - **مطلوب API Key:** نعم  
+   - **تردد التحديث:** كل 30 دقيقة
+
+2. **MalwareBazaar**  
+   - **النوع:** External Import  
+   - **الفائدة:** يستورد عينات البرمجيات الخبيثة مع بيانات مثل البصمات، نوع الملف، التواريخ، والعائلات.  
+   - **المصدر:** [bazaar.abuse.ch](https://bazaar.abuse.ch)  
+   - **مطلوب API Key:** نعم  
+   - **تردد التحديث:** كل 5 دقائق
+
+3. **URLhaus**  
+   - **النوع:** External Import  
+   - **الفائدة:** يجمع عناوين URL الخبيثة المستخدمة لنشر البرمجيات الضارة.  
+   - **المصدر:** [urlhaus.abuse.ch](https://urlhaus.abuse.ch)  
+   - **مطلوب API Key:** لا  
+   - **تردد التحديث:** كل ساعة
+
+4. **CrowdSec**  
+   - **النوع:** Internal Enrichment  
+   - **الفائدة:** يثري عناوين IP بمعلومات السمعة والتهديدات وتقنيات MITRE ATT&CK والثغرات المرتبطة.  
+   - **المصدر:** [crowdsec.net](https://crowdsec.net)  
+   - **مطلوب API Key:** نعم  
+   - **تردد التحديث:** فوري عند إضافة IP جديد
+
+5. **CVE (Common Vulnerabilities and Exposures)**  
+   - **النوع:** External Import  
+   - **الفائدة:** يجلب الثغرات الأمنية من قاعدة بيانات NVD مع تفاصيل مثل رقم CVE، شدة الثغرة، الروابط، والتقييمات.  
+   - **المصدر:** [nvd.nist.gov](https://nvd.nist.gov)  
+   - **مطلوب API Key:** لا  
+   - **تردد التحديث:** كل 24 ساعة
+
+6. **MITRE ATT&CK**  
+   - **النوع:** External Import  
+   - **الفائدة:** يستورد بيانات إطار عمل MITRE ATT&CK حول تقنيات وتكتيكات الهجمات السيبرانية.  
+   - **المصدر:** [attack.mitre.org](https://attack.mitre.org)  
+   - **مطلوب API Key:** لا  
+   - **تردد التحديث:** كل 7 أيام
+
+7. **OpenCTI Datasets**  
+   - **النوع:** External Import  
+   - **الفائدة:** يجلب مجموعات بيانات مثل قطاعات السوق، المواقع الجغرافية، والشركات.  
+   - **المصدر:** GitHub - OpenCTI-Platform/datasets  
+   - **مطلوب API Key:** لا  
+   - **تردد التحديث:** كل 7 أيام
+
+8. **Internal Export Connectors**  
+   - **النوع:** Internal Export  
+   - **الفائدة:** تصدير بيانات التهديدات إلى صيغ مثل STIX 2.1، CSV، TXT للمشاركة أو التحليل الخارجي.
+
+9. **Internal Import Connectors**  
+   - **النوع:** Internal Import  
+   - **الفائدة:** استيراد معلومات التهديدات من ملفات رفع يدوية بصيغ متعددة (STIX, YARA, تقارير...).
+
+10. **Worker**  
+    - **النوع:** خدمة داخلية  
+    - **الفائدة:** تعالج الرسائل من RabbitMQ وتدير تنفيذ المهام والكونيكتورز.
+
+---
+
+## جدول ملخص سريع للكونيكتورز
+
+| الكونيكتور               | النوع           | الفائدة الرئيسية                  | API Key مطلوب؟ |
+|-------------------------|-----------------|---------------------------------|----------------|
+| AlienVault OTX          | External Import | استيراد تهديدات وحزم APT         | نعم            |
+| MalwareBazaar           | External Import | عينات برمجيات خبيثة              | نعم            |
+| URLhaus                 | External Import | عناوين URL خبيثة                 | لا             |
+| CrowdSec                | Internal Enrichment | إثراء عناوين IP بالسمعة والتقنيات | نعم            |
+| CVE                     | External Import | ثغرات أمنية                      | لا             |
+| MITRE ATT&CK            | External Import | تقنيات وتكتيكات الهجوم          | لا             |
+| OpenCTI Datasets        | External Import | بيانات القطاعات والمواقع         | لا             |
+| Internal Export Connectors | Internal Export | تصدير البيانات                  | لا             |
+| Internal Import Connectors | Internal Import | استيراد بيانات من ملفات         | لا             |
+| Worker                  | خدمة داخلية    | معالجة المهام والتكامل           | لا             |
+
+---
+
+## أوامر Git و Docker الأساسية المستخدمة
+
+| الأمر                         | الوصف                                         |
+|-------------------------------|-----------------------------------------------|
+| `git init`                    | تهيئة مستودع Git جديد في المجلد الحالي.         |
+| `git add .`                   | إضافة كل الملفات الجديدة والمعدلة للمرحلة المؤقتة (staging). |
+| `git commit -m "رسالة"`      | إنشاء نسخة من التغييرات مع رسالة توضيحية.       |
+| `git remote add origin <url>`| ربط المستودع المحلي بمستودع بعيد (GitHub مثلا).  |
+| `git push -u origin main`    | رفع التغييرات إلى المستودع البعيد على الفرع main وربطه بالفرع المحلي. |
+| `docker-compose up -d`       | تشغيل الخدمات في الخلفية باستخدام Docker Compose. |
+| `docker-compose down`        | إيقاف وإزالة الحاويات والشبكات الخاصة بالخدمات.   |
+
+---
+
+## إضافة صورة توضيحية للهيكلة
+
+يمكنك رسم هيكلة المشروع بالشكل التالي وحفظها كصورة داخل مجلد `assets`:
+├── nawafOpenCTI
+│ └── opencti
+│ ├── docker-compose.dev.yml # تكوين بيئة التطوير
+│ ├── docker-compose.opensearch.yml # تكوين محرك البحث OpenSearch
+│ ├── docker-compose.yml # تكوين الخدمات الأساسية
+│ ├── rabbitmq.conf # إعدادات RabbitMQ
+│ ├── README.md # ملف التوثيق
+│ └── renovate.json # إعدادات تحديث التبعيات
+
+
