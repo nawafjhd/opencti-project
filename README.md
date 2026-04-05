@@ -1,142 +1,56 @@
+# 🛡️ OpenCTI Threat Intelligence Ecosystem
 
------
+<div align="center">
 
-````markdown
-# 🛡️ OpenCTI Deployment & Threat Intel Ecosystem
+![OpenCTI Version](https://img.shields.io/badge/Platform-OpenCTI%206.x-orange?style=for-the-badge&logo=opencti)
+![Docker](https://img.shields.io/badge/Docker-Enabled-blue?style=for-the-badge&logo=docker)
+![Architecture](https://img.shields.io/badge/Architecture-Distributed-green?style=for-the-badge)
+![License](https://img.shields.io/badge/License-Apache%202.0-red?style=for-the-badge)
 
-[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Docker Support](https://img.shields.io/badge/Docker-Supported-blue?logo=docker&logoColor=white)](https://www.docker.com/)
-[![OpenCTI Version](https://img.shields.io/badge/Platform-OpenCTI%206.x-orange)](https://github.com/OpenCTI-Platform/opencti)
-[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/nawafjhd)
+**A production-ready deployment framework for OpenCTI, featuring pre-configured connectors and optimized microservices orchestration.**
 
-مشروع متكامل لإدارة وتحليل استخبارات التهديدات السيبرانية (CTI) باستخدام منصة **OpenCTI**. تم تصميم هذا المستودع لتسهيل عملية النشر (Deployment) وأتمتة جلب البيانات من أشهر المصادر العالمية.
+[Explore Docs](https://github.com/[USER_NAME]/[REPO_NAME]/wiki) • [Report Bug](https://github.com/[USER_NAME]/[REPO_NAME]/issues) • [Request Feature](https://github.com/[USER_NAME]/[REPO_NAME]/pulls)
 
----
-
-## 📖 الفهرس
-- [المقدمة](#-المقدمة)
-- [هيكلية المشروع](#-هيكلية-المشروع)
-- [الخدمات والملفات](#-الخدمات-والملفات)
-- [الموصلات المدعومة](#-الموصلات-المدعومة)
-- [دليل التشغيل](#-دليل-التشغيل)
-- [المتطلبات التقنية](#-المتطلبات-التقنية)
+</div>
 
 ---
 
-## 🌟 المقدمة
-يعمل هذا المشروع كمركز عصبي لجمع بيانات التهديدات. من خلال **OpenCTI**، نقوم بربط النقاط بين المهاجمين، الضحايا، والتقنيات المستخدمة (TTPs). يوفر هذا المستودع إعدادات جاهزة للعمل (Production-ready) وبيئات تطويرية معزولة.
+## 📖 Overview
+This repository provides a streamlined, Docker-based environment for deploying the **OpenCTI** platform. It integrates essential threat intelligence connectors to automate the ingestion of indicators (IoCs), tactics (TTPs), and observables from global providers.
 
 ---
 
-## 📂 هيكلية المشروع
-التنظيم الشجري للمفات الأساسية لضمان سهولة الإدارة:
+## 🏗️ System Architecture
+The environment is orchestrated into three logical layers to ensure scalability and high availability:
 
+### 1. Core Infrastructure (The Backbone)
+* **Redis:** High-performance caching and state management.
+* **Elasticsearch / OpenSearch:** Distributed search and analytics engine for massive datasets.
+* **MinIO:** S3-compatible object storage for reports and artifacts.
+* **RabbitMQ:** Message broker for asynchronous task distribution between the platform and workers.
+
+### 2. Processing Layer (The Brain)
+* **OpenCTI Platform:** Central API and management console.
+* **Workers:** Python-based consumers that process incoming data from RabbitMQ (Configured with 3 scalable instances).
+
+### 3. Data Ingestion Layer (Connectors)
+| Category | Connector | Data Source | Purpose |
+| :--- | :--- | :--- | :--- |
+| **External** | `AlienVault OTX` | AlienVault | Global IoC ingestion (IPs, Domains) |
+| **External** | `MalwareBazaar` | Abuse.ch | Malware samples & hash metadata |
+| **External** | `URLhaus` | Abuse.ch | Malicious URL tracking |
+| **Enrichment**| `CrowdSec` | CrowdSec | Real-time IP reputation & MITRE mapping |
+| **Library** | `MITRE ATT&CK` | MITRE | Enterprise/Mobile/ICS Tactics & Techniques |
+| **Vulnerability**| `CVE (NVD)` | NIST | Real-time vulnerability synchronization |
+
+---
+
+## 📂 Project Structure
 ```bash
 .
-├── docker-compose.yml           # حجر الزاوية: تشغيل المنصة والقواعد والوسائط
-├── docker-compose.dev.yml       # بيئة التطوير والاختبار التجريبي
-├── docker-compose.opensearch.yml # إعداد محرك البحث عالي الأداء
-├── rabbitmq.conf                # ضبط معايير تراسل البيانات (Queuing)
-├── renovate.json                # أتمتة تحديثات النظام والاعتمادات
-└── README.md                    # وثيقة المشروع الحالية
-````
-
------
-
-## ⚙️ الخدمات والملفات
-
-| الملف | الوصف الوظيفي | الحالة |
-| :--- | :--- | :--- |
-| `OpenCTI Platform` | الواجهة الرسومية والـ API الأساسي للمنصة | 🟢 Active |
-| `PostgreSQL` | تخزين البيانات المنطقية والعلاقات | 🟢 Active |
-| `RabbitMQ` | إدارة المهام وتوزيع البيانات على الموصلات | 🟢 Active |
-| `OpenSearch` | الفهرسة والبحث السريع في ملايين السجلات | 🟢 Active |
-
------
-
-## 🔌 الموصلات المدعومة (Connectors)
-
-تم دمج أفضل الموصلات العالمية لضمان تغطية شاملة لمشهد التهديدات:
-
-### 📦 استيراد خارجي (External Import)
-
-  * **AlienVault OTX**: جلب الـ Pulses ومؤشرات الاختراق اللحظية.
-  * **MalwareBazaar**: تتبع عينات البرمجيات الخبيثة وبصماتها.
-  * **URLhaus**: رصد الروابط الضارة التي تنشر البرمجيات الخبيثة.
-  * **MITRE ATT\&CK**: تحديث مصفوفة التكتيكات والتقنيات (TTPs).
-  * **CVE (NVD)**: مزامنة أحدث الثغرات الأمنية المكتشفة.
-
-### 🛠️ إثراء البيانات (Enrichment)
-
-  * **CrowdSec**: تقييم سمعة العناوين (IP Reputation) بشكل تلقائي.
-
------
-
-## 🚀 دليل التشغيل (Quick Start)
-
-### 1️⃣ تهيئة البيئة
-
-تأكد من إعداد ملف المغيرات البيئية `.env` (غير مدرج للأمن):
-
-```bash
-cp .env.sample .env
-# قم بتعديل القيم داخل ملف .env
-```
-
-### 2️⃣ تشغيل المنصة
-
-لتشغيل جميع الخدمات في الخلفية:
-
-```bash
-docker-compose up -d
-```
-
-### 3️⃣ مراقبة الأداء
-
-لمتابعة سجلات الموصلات والتحقق من الربط:
-
-```bash
-docker-compose logs -f --tail=100
-```
-
------
-
-## 🛠️ الأوامر الشائعة
-
-| الأمر | الوصف |
-| :--- | :--- |
-| `docker-compose ps` | عرض حالة جميع الخدمات |
-| `docker-compose stop` | إيقاف مؤقت للخدمات دون حذف البيانات |
-| `docker-compose build --no-cache` | إعادة بناء الصور لضمان تحديث الموصلات |
-| `docker-compose down -v` | إيقاف كامل وحذف جميع الـ Volumes (حذر\!) |
-
------
-
-## ⚠️ ملاحظات هامة
-
-  * **الذاكرة العشوائية**: يتطلب المشروع 16GB RAM كحد أدنى لأداء مستقر.
-  * **الأمن**: لا تقم بمشاركة ملف `rabbitmq.conf` أو مفاتيح الـ API في المستودعات العامة.
-  * **التحديثات**: أداة `Renovate` تقوم بمراقبة التحديثات، تأكد من مراجعة الـ PRs بشكل دوري.
-
------
-
-## 🤝 المساهمة
-
-المساهمات مفتوحة\! إذا وجدت ثغرة في الإعدادات أو أردت إضافة موصل جديد، لا تتردد في فتح **Pull Request**.
-
------
-
-**تم إعداد هذا التوثيق بواسطة [nawafjhd](https://www.google.com/url?sa=E&source=gmail&q=https://github.com/nawafjhd) 🚀**
-
-```
-
----
-
-### لماذا هذا الملف "احترافي جداً"؟
-1.  **Badges**: تعطي انطباعاً بأن المشروع مدعوم ومنظم تقنياً.
-2.  **Visual Hierarchy**: استخدام الجداول والقوائم يجعل القراءة سريعة ومريحة للعين.
-3.  **Technical Clarity**: شرحت فيه الـ Connectors والـ Workflow بشكل يوضح أنك فاهم للأدوات التي تستخدمها.
-4.  **Quick Links**: الفهرس يسهل التنقل داخل الملف إذا زاد المحتوى.
-
-**نصيحة:** بعد لصق هذا الكود، تأكد من وجود ملف `.env.sample` في مجلدك لكي تكتمل الصورة الاحترافية لمن يزور المشروع!
-```
+├── 🐳 docker-compose.yml           # Primary production stack
+├── 🛠️ docker-compose.dev.yml       # Development & debugging environment
+├── 🔎 docker-compose.opensearch.yml # OpenSearch alternative configuration
+├── ⚙️ rabbitmq.conf                # Optimized message broker policy
+├── 🤖 renovate.json                # Automated dependency management
+└── 📂 assets/                      # Technical diagrams and visual resources
