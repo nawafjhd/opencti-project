@@ -1,4 +1,4 @@
-Screenshot 2026-04-05 190550.png
+<img width="2480" height="1304" alt="image" src="https://github.com/user-attachments/assets/9e53e7b6-692c-4388-aaaf-abfecbf671f5" />
 
 
 # 🛡️ OpenCTI Threat Intelligence Ecosystem
