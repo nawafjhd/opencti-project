@@ -1,4 +1,3 @@
-<img width="2480" height="1304" alt="image" src="https://github.com/user-attachments/assets/9e53e7b6-692c-4388-aaaf-abfecbf671f5" />
 
 
 # 🛡️ OpenCTI Threat Intelligence Ecosystem
@@ -17,6 +16,10 @@
 </div>
 
 ---
+<img width="2480" height="1304" alt="image" src="https://github.com/user-attachments/assets/e7eb5bf0-ec06-4b62-a576-558004278298" />
+
+---
+
 
 ## 📖 Overview
 This repository provides a streamlined, Docker-based environment for deploying the **OpenCTI** platform. It integrates essential threat intelligence connectors to automate the ingestion of indicators (IoCs), tactics (TTPs), and observables from global providers.
