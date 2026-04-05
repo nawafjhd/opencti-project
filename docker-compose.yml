@@ -32,10 +32,7 @@ services:
     volumes:
       - esdata:/usr/share/elasticsearch/data
     environment:
-      # Comment-out the line below for a cluster of multiple nodes
       - discovery.type=single-node
-      # Uncomment the line below below for a cluster of multiple nodes
-      # - cluster.name=docker-cluster
       - xpack.ml.enabled=false
       - xpack.security.enabled=false
       - thread_pool.search.queue_size=5000
@@ -62,7 +59,7 @@ services:
       - "9000:9000"
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}    
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     command: server /data
     restart: always
     healthcheck:
@@ -79,7 +76,7 @@ services:
     volumes:
       - type: bind
         source: ./rabbitmq.conf
-        target: /etc/rabbitmq/rabbitmq.conf 
+        target: /etc/rabbitmq/rabbitmq.conf
       - amqpdata:/var/lib/rabbitmq
     restart: always
     healthcheck:
@@ -106,7 +103,7 @@ services:
       - OPENCTI__DAEMON__DOCKER__NETWORK_MODE=${COMPOSE_PROJECT_NAME}_default
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - rsakeys:/keys:ro  # RSA key mounted as read-only
+      - rsakeys:/keys:ro
     depends_on:
       rsa-key-generator:
         condition: service_healthy
@@ -119,7 +116,7 @@ services:
   ###########################
   # OPENCTI                 #
   ###########################
-  
+
   opencti:
     image: opencti/platform:latest
     environment:
@@ -180,7 +177,7 @@ services:
     restart: always
 
   ###########################
-  # OPENCTI CONNECTORS      #
+  # OPENCTI CONNECTORS (Internal)
   ###########################
 
   connector-export-file-stix:
@@ -188,7 +185,7 @@ services:
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=${CONNECTOR_EXPORT_FILE_STIX_ID} # Valid UUIDv4
+      - CONNECTOR_ID=${CONNECTOR_EXPORT_FILE_STIX_ID}
       - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
       - CONNECTOR_NAME=ExportFileStix2
       - CONNECTOR_SCOPE=application/json
@@ -201,7 +198,7 @@ services:
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=${CONNECTOR_EXPORT_FILE_CSV_ID} # Valid UUIDv4
+      - CONNECTOR_ID=${CONNECTOR_EXPORT_FILE_CSV_ID}
       - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
       - CONNECTOR_NAME=ExportFileCsv
       - CONNECTOR_SCOPE=text/csv
@@ -214,7 +211,7 @@ services:
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=${CONNECTOR_EXPORT_FILE_TXT_ID} # Valid UUIDv4
+      - CONNECTOR_ID=${CONNECTOR_EXPORT_FILE_TXT_ID}
       - CONNECTOR_TYPE=INTERNAL_EXPORT_FILE
       - CONNECTOR_NAME=ExportFileTxt
       - CONNECTOR_SCOPE=text/plain
@@ -227,12 +224,12 @@ services:
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=${CONNECTOR_IMPORT_FILE_STIX_ID} # Valid UUIDv4
+      - CONNECTOR_ID=${CONNECTOR_IMPORT_FILE_STIX_ID}
       - CONNECTOR_TYPE=INTERNAL_IMPORT_FILE
       - CONNECTOR_NAME=ImportFileStix
-      - CONNECTOR_VALIDATE_BEFORE_IMPORT=true # Validate any bundle before import
+      - CONNECTOR_VALIDATE_BEFORE_IMPORT=true
       - CONNECTOR_SCOPE=application/json,text/xml
-      - CONNECTOR_AUTO=true # Enable/disable auto-import of file
+      - CONNECTOR_AUTO=true
     restart: always
     depends_on:
       opencti:
@@ -242,13 +239,13 @@ services:
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=${CONNECTOR_IMPORT_DOCUMENT_ID} # Valid UUIDv4
+      - CONNECTOR_ID=${CONNECTOR_IMPORT_DOCUMENT_ID}
       - CONNECTOR_TYPE=INTERNAL_IMPORT_FILE
       - CONNECTOR_NAME=ImportDocument
-      - CONNECTOR_VALIDATE_BEFORE_IMPORT=true # Validate any bundle before import
+      - CONNECTOR_VALIDATE_BEFORE_IMPORT=true
       - CONNECTOR_SCOPE=application/pdf,text/plain,text/html
-      - CONNECTOR_AUTO=true # Enable/disable auto-import of file
-      - CONNECTOR_ONLY_CONTEXTUAL=false # Only extract data related to an entity (a report, a threat actor, etc.)
+      - CONNECTOR_AUTO=true
+      - CONNECTOR_ONLY_CONTEXTUAL=false
       - IMPORT_DOCUMENT_CREATE_INDICATOR=true
     restart: always
     depends_on:
@@ -259,11 +256,11 @@ services:
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=${CONNECTOR_IMPORT_FILE_YARA_ID} # Valid UUIDv4
+      - CONNECTOR_ID=${CONNECTOR_IMPORT_FILE_YARA_ID}
       - CONNECTOR_NAME=ImportFileYARA
-      - CONNECTOR_VALIDATE_BEFORE_IMPORT=true # Validate any bundle before import
+      - CONNECTOR_VALIDATE_BEFORE_IMPORT=true
       - CONNECTOR_SCOPE=text/yara+plain
-      - CONNECTOR_AUTO=false # Enable/disable auto-import of file
+      - CONNECTOR_AUTO=false
       - YARA_IMPORT_FILE_SPLIT_RULES=true
     restart: always
     depends_on:
@@ -274,13 +271,13 @@ services:
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
-      - CONNECTOR_ID=${CONNECTOR_ANALYSIS_ID} # Valid UUIDv4
+      - CONNECTOR_ID=${CONNECTOR_ANALYSIS_ID}
       - CONNECTOR_TYPE=INTERNAL_ANALYSIS
       - CONNECTOR_NAME=ImportDocumentAnalysis
-      - CONNECTOR_VALIDATE_BEFORE_IMPORT=false # Validate any bundle before import
+      - CONNECTOR_VALIDATE_BEFORE_IMPORT=false
       - CONNECTOR_SCOPE=application/pdf,text/plain,text/html
-      - CONNECTOR_AUTO=true # Enable/disable auto-import of file
-      - CONNECTOR_ONLY_CONTEXTUAL=false # Only extract data related to an entity (a report, a threat actor, etc.)
+      - CONNECTOR_AUTO=true
+      - CONNECTOR_ONLY_CONTEXTUAL=false
     restart: always
     depends_on:
       opencti:
@@ -295,7 +292,7 @@ services:
     restart: always
     depends_on:
       opencti:
-        condition: service_healthy          
+        condition: service_healthy
 
   ###########################
   # OPENCTI DEFAULT DATA    #
@@ -307,26 +304,163 @@ services:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
       - CONNECTOR_ID=${CONNECTOR_OPENCTI_ID}
-      - "CONNECTOR_NAME=OpenCTI Datasets"
+      - CONNECTOR_NAME=OpenCTI Datasets
       - CONNECTOR_SCOPE=marking-definition,identity,location
-      - CONNECTOR_AUTO_CREATE_SERVICE_ACCOUNT=true
-      - CONNECTOR_AUTO_CREATE_SERVICE_ACCOUNT_CONFIDENCE_LEVEL=100
+      - CONNECTOR_RUN_AND_TERMINATE=false
+      - CONNECTOR_LOG_LEVEL=info
+      - CONFIG_SECTORS_FILE_URL=https://raw.githubusercontent.com/OpenCTI-Platform/datasets/master/data/sectors.json
+      - CONFIG_GEOGRAPHY_FILE_URL=https://raw.githubusercontent.com/OpenCTI-Platform/datasets/master/data/geography.json
+      - CONFIG_COMPANIES_FILE_URL=https://raw.githubusercontent.com/OpenCTI-Platform/datasets/master/data/companies.json
+      - CONFIG_REMOVE_CREATOR=false
+      - CONFIG_INTERVAL=7
     restart: always
     depends_on:
       opencti:
-        condition: service_healthy      
+        condition: service_healthy
+
   connector-mitre:
     image: opencti/connector-mitre:latest
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
       - CONNECTOR_ID=${CONNECTOR_MITRE_ID}
-      - CONNECTOR_AUTO_CREATE_SERVICE_ACCOUNT=true
-      - CONNECTOR_AUTO_CREATE_SERVICE_ACCOUNT_CONFIDENCE_LEVEL=75      
+      - CONNECTOR_NAME=MITRE ATT&CK
+      - CONNECTOR_SCOPE=mitre
+      - CONNECTOR_LOG_LEVEL=info
+      - MITRE_INTERVAL=7
+      - MITRE_REMOVE_STATEMENT_MARKING=false
     restart: always
     depends_on:
       opencti:
-        condition: service_healthy      
+        condition: service_healthy
+
+  ###########################
+  # EXTERNAL THREAT INTELLIGENCE CONNECTORS
+  ###########################
+
+  # AlienVault OTX - Threat Intelligence and APT Groups
+  connector-alienvault:
+    image: opencti/connector-alienvault:latest
+    environment:
+      - OPENCTI_URL=http://opencti:8080
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=8bbae241-6289-4faf-b7d6-7503bed50bbc
+      - CONNECTOR_NAME=AlienVault OTX
+      - CONNECTOR_SCOPE=alienvault
+      - CONNECTOR_LOG_LEVEL=info
+      - CONNECTOR_DURATION_PERIOD=PT30M
+      - ALIENVAULT_BASE_URL=https://otx.alienvault.com
+      - ALIENVAULT_API_KEY=15a24cbdc1c9fefa6aae826edbd5ee9aa0ad6f1afc2595cd2ae5cd35e531871f
+      - ALIENVAULT_TLP=White
+      - ALIENVAULT_CREATE_OBSERVABLES=true
+      - ALIENVAULT_CREATE_INDICATORS=true
+      - ALIENVAULT_PULSE_START_TIMESTAMP=2026-01-01T00:00:00
+      - ALIENVAULT_REPORT_TYPE=threat-report
+      - ALIENVAULT_REPORT_STATUS=New
+      - ALIENVAULT_GUESS_MALWARE=true
+      - ALIENVAULT_GUESS_CVE=true
+      - ALIENVAULT_ENABLE_RELATIONSHIPS=true
+      - ALIENVAULT_ENABLE_ATTACK_PATTERNS_INDICATES=true
+      - ALIENVAULT_FILTER_INDICATORS=false
+      - ALIENVAULT_DEFAULT_X_OPENCTI_SCORE=50
+      - ALIENVAULT_X_OPENCTI_SCORE_IP=60
+      - ALIENVAULT_X_OPENCTI_SCORE_DOMAIN=70
+      - ALIENVAULT_X_OPENCTI_SCORE_HOSTNAME=75
+      - ALIENVAULT_X_OPENCTI_SCORE_EMAIL=70
+      - ALIENVAULT_X_OPENCTI_SCORE_FILE=80
+      - ALIENVAULT_X_OPENCTI_SCORE_URL=80
+      - ALIENVAULT_X_OPENCTI_SCORE_MUTEX=60
+      - ALIENVAULT_X_OPENCTI_SCORE_CRYPTOCURRENCY_WALLET=80
+    restart: always
+    depends_on:
+      opencti:
+        condition: service_healthy
+
+  # MalwareBazaar - Malware Samples and IOCs
+  connector-malwarebazaar-recent-additions:
+    image: opencti/connector-malwarebazaar-recent-additions:latest
+    environment:
+      - OPENCTI_URL=http://opencti:8080
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=9ccae241-7289-4faf-b7d6-8503bed50ccd
+      - CONNECTOR_NAME=MalwareBazaar
+      - CONNECTOR_SCOPE=malwarebazaar
+      - CONNECTOR_LOG_LEVEL=info
+      - MALWAREBAZAAR_RECENT_ADDITIONS_API_URL=https://mb-api.abuse.ch/api/v1/
+      - MALWAREBAZAAR_RECENT_ADDITIONS_API_KEY=fd8cff11c7782368afb976fc9094b488688f150e902302e3
+      - MALWAREBAZAAR_RECENT_ADDITIONS_COOLDOWN_SECONDS=300
+      - MALWAREBAZAAR_RECENT_ADDITIONS_INCLUDE_TAGS=exe,dll,docm,docx,doc,xls,xlsx,xlsm,js,elf,jar,pdf,rtf
+      - MALWAREBAZAAR_RECENT_ADDITIONS_LABELS=malware-bazaar
+      - MALWAREBAZAAR_RECENT_ADDITIONS_LABELS_COLOR=#54483b
+    restart: always
+    depends_on:
+      opencti:
+        condition: service_healthy
+
+  # URLhaus - Malicious URLs (External Import)
+  connector-urlhaus:
+    image: opencti/connector-urlhaus:latest
+    environment:
+      - OPENCTI_URL=http://opencti:8080
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=a7bae241-7289-4faf-b7d6-9503bed50cce
+      - CONNECTOR_NAME=URLhaus
+      - CONNECTOR_TYPE=EXTERNAL_IMPORT
+      - CONNECTOR_SCOPE=url
+      - CONNECTOR_LOG_LEVEL=info
+      - CONNECTOR_DURATION_PERIOD=PT1H
+      - URLHAUS_URL=https://urlhaus.abuse.ch/downloads/csv_recent/
+    restart: always
+    depends_on:
+      opencti:
+        condition: service_healthy
+
+  # CrowdSec - Enrichment for IP Observables
+  connector-crowdsec:
+    image: opencti/connector-crowdsec:6.2.1
+    environment:
+      - OPENCTI_URL=http://opencti:8080
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=c7cae241-7289-4faf-b7d6-9503bed50cd0
+      - CONNECTOR_TYPE=INTERNAL_ENRICHMENT
+      - CONNECTOR_NAME=CrowdSec
+      - CONNECTOR_SCOPE=IPv4-Addr,IPv6-Addr
+      - CONNECTOR_CONFIDENCE_LEVEL=100
+      - CONNECTOR_LOG_LEVEL=info
+      - CONNECTOR_UPDATE_EXISTING_DATA=false
+      - CROWDSEC_KEY=XOQEWAr6Af3psst3h3oq3VxdubeJUV2yd6yA1I90
+      - CROWDSEC_API_VERSION=v2
+      - CROWDSEC_LABELS_SCENARIO_NAME=true
+      - CROWDSEC_LABELS_SCENARIO_LABEL=false
+      - CROWDSEC_LABELS_CVE=true
+      - CROWDSEC_LABELS_MITRE=true
+      - CROWDSEC_LABELS_REPUTATION=true
+      - CROWDSEC_INDICATOR_CREATE_FROM=malicious,suspicious,known
+      - CROWDSEC_CREATE_NOTE=true
+      - CROWDSEC_CREATE_SIGHTING=true
+      - CROWDSEC_CREATE_TARGETED_COUNTRIES_SIGHTINGS=false
+    restart: always
+    depends_on:
+      opencti:
+        condition: service_healthy
+
+  # CVE - Common Vulnerabilities and Exposures (NVD Feed)
+  connector-cve:
+    image: opencti/connector-cve:latest
+    environment:
+      - OPENCTI_URL=http://opencti:8080
+      - OPENCTI_TOKEN=${OPENCTI_ADMIN_TOKEN}
+      - CONNECTOR_ID=d7cae241-7289-4faf-b7d6-9503bed50cd1
+      - CONNECTOR_NAME=CVE
+      - CONNECTOR_TYPE=EXTERNAL_IMPORT
+      - CONNECTOR_SCOPE=vulnerability
+      - CONNECTOR_LOG_LEVEL=info
+      - CONNECTOR_DURATION_PERIOD=PT24H
+      - CVE_URL=https://nvd.nist.gov/feeds/json/cve/1.1/
+    restart: always
+    depends_on:
+      opencti:
+        condition: service_healthy
 
 volumes:
   esdata:
